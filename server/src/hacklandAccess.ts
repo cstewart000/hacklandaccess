@@ -24,11 +24,8 @@ export class HacklandAccess {
                     this.DoorOpenCommand.next(door);
                 }
             });
-
         })
-
     }
-
 }
 
 export default HacklandAccess
