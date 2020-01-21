@@ -46,7 +46,25 @@ export class SlackController {
             });
             resp.status(200);
             resp.end();
-        })
+        });
+
+        this.Routes.patch('/api/slack/users', async (req: Request, resp: Response, next: NextFunction) => {
+            const collection = this.getUserCollection();
+            const users:any = await this.webSlack.users.list();
+            users.members.forEach((u:any) => {
+                // let newChannel: ChannelModel = {slackId: ch.id, name: ch.name};
+                // collection.insertOne(newChannel, (error, result) => {
+                //     if (error) {
+                //         console.dir(error);
+                //     } else {
+                //         console.dir(`Added ${newChannel.name} : ${newChannel.slackId}`);
+                //     }
+                //});
+                console.dir(JSON.stringify(u, null, 4));
+            });
+            resp.status(200);
+            resp.end();
+        });
     }
 }
 
