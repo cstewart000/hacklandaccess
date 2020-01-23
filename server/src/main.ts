@@ -20,7 +20,7 @@ app.use(BodyParser.json());
 app.use(requestLoggerMiddleware);
 console.log('requestLoggerMiddleware');
 
-const port = process.env.PORT || 8088
+const port = process.env.PORT || 8088;
 
 console.log(__dirname);
 
@@ -29,7 +29,7 @@ const accessControl = new HacklandAccess();
 const pubSub = new PubSub(config.Params);
 const userController = new UserController();
 const doorController = new DoorController();
-const slackController = new SlackController()
+const slackController = new SlackController();
 app.use(userController.Routes);
 app.use(doorController.Routes);
 app.use(slackController.Routes);

@@ -1,0 +1,14 @@
+[
+    {
+        "type": "lock",
+        "uid": "84f3eb770609",
+        "location": "hl_door",
+        "enabled": true
+    },
+    {
+        "type": "rfid-reader",
+        "uid": "600194202C80",
+        "location": "hl_door",
+        "enabled": true
+    }
+]
