@@ -1,0 +1,6 @@
+{
+    "mongoConnectString": "mongodb://127.0.0.1:27017",
+    "mongoApplicationString": "AccessControl",
+    "mqttConnectString": "mqtt://192.168.0.12",
+    "slackToken": "xoxp-000000000000-000000000000000-0000000000000000000-00000000000000000000000000"
+}
