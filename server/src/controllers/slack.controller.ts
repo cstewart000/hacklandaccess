@@ -4,9 +4,9 @@ require('dotenv').config();
 import Config from '../configuration';
 import User from '../models/User';
 
-const SUPPORTERS_CHANNEL_ID = 'GH6D0N8KD'; // FIXME: Want this in configuration or in the database.
+const SUPPORTERS_CHANNEL_ID = 'GH6D0N8KD'; // FIXME: The 'supporters' channel. Want this in configuration or in the database.
 
-export class SlackController {
+export default class SlackController {
     public Routes = Router();
     public webSlack: slack.WebClient;
     private slackToken: string;
@@ -17,9 +17,9 @@ export class SlackController {
         this.initialise();
     }
 
-    public async Connect() {
-        var res = await this.webSlack.auth.test({ token: this.slackToken });
-        console.log(`slack result ${JSON.stringify(res, null, 4)}`);
+    public async connect() {
+        const res = await this.webSlack.auth.test({ token: this.slackToken });
+        // console.log(`slack result ${JSON.stringify(res, null, 4)}`);
     }
 
     public async getSlackChannels(): Promise<Array<any>> {
@@ -59,5 +59,3 @@ export class SlackController {
         });
     }
 }
-
-export default SlackController;

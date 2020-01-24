@@ -3,7 +3,7 @@ import mongoose from '../mongo';
 export interface IUser extends mongoose.Document {
     name: string;
     userId: string;
-    rfidToken: string;
+    rfidToken: [string];
     admin: boolean;
     email: string;
     enabled: boolean;
@@ -14,7 +14,7 @@ export interface IUser extends mongoose.Document {
 export const userSchema = new mongoose.Schema({
     name: { type: String, required: true },
     userId: { type: String, required: false },
-    rfidToken: { type: String, required: false },
+    rfidToken: { type: [String], required: false },
     admin: { type: String, default: false },
     email: { type: String, required: false },
     enabled: { type: Boolean, required: false },
@@ -37,32 +37,35 @@ class UserModel extends mongoose.Model {
         return await this.save();
     }
 
+    public async addRfidToken(rfidToken: String): Promise<void> {
+        if (this.rfidToken.includes(rfidToken)) {
+            return;
+        }
+        this.rfidToken.push(rfidToken);
+        return await this.save();
+    }
+
     //
     // Static functions that work on the whole User Data model - these could be moved to a UserManager class
     //
 
     public static async findByUserId(userId: string): Promise<UserModel> {
-        console.log('findByUserId');
         return await this.findOne({ userId });
     }
 
     public static async findByName(name: string): Promise<UserModel> {
-        console.log('findByName');
         return await this.findOne({ name });
     }
 
     public static async findByRfidToken(rfidToken: string): Promise<UserModel> {
-        console.log('findByrfidToken');
         return await this.findOne({ rfidToken });
     }
 
     public static async getAll(): Promise<UserModel[]> {
-        console.log('getAll');
         return await this.find({});
     }
 
     public static async findUserByEmail(email: String): Promise<UserModel> {
-        console.log('findUserByEmail');
         return await this.findOne({ email });
     }
 

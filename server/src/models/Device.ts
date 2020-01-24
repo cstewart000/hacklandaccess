@@ -1,4 +1,5 @@
 import mongoose from '../mongo';
+import Action from './Action';
 
 export enum DeviceType {
     Lock,
@@ -16,6 +17,17 @@ function deviceTypeFromString(str: String): DeviceType {
     }
 }
 
+function deviceTypeToString(type: DeviceType): String {
+    switch (type) {
+        case DeviceType.Lock:
+            return 'lock';
+        case DeviceType.CardReader:
+            return 'rfid-reader';
+        default:
+            throw new Error(`Invalid DeviceType: ${type}`);
+    }
+}
+
 export interface IDevice extends mongoose.Document {
     type: DeviceType; // What kind of device this is
     uid: String; // The UID (typically the mac address) of the device
@@ -30,7 +42,7 @@ export const deviceSchema = new mongoose.Schema({
     enabled: { type: Boolean, required: false }
 });
 
-class DeviceModel extends mongoose.Model {
+export class DeviceModel extends mongoose.Model {
     public async setLocation(location: String): Promise<void> {
         this.location = location;
         await this.save();
@@ -50,6 +62,14 @@ class DeviceModel extends mongoose.Model {
 
     public static async getAllDevicesByTypeAndLocation(type: String, location: String): Promise<Array<DeviceModel>> {
         return await this.find({ type, location });
+    }
+
+    public static async getDevicesWithAction(action: Action): Promise<Array<DeviceModel>> {
+        return await this.find({
+            enabled: true,
+            location: action.location,
+            type: deviceTypeToString(action.appliesToDevice)
+        });
     }
 
     public static async registerDevice(uid: String, type: String) {
