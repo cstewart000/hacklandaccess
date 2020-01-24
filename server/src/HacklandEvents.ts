@@ -17,23 +17,11 @@ export default class HacklandEvents {
         });
     }
 
-    async triggerEventFromDevice(eventStr: string, deviceId: string, message: string, callback: ActionExecuter) {
-        console.log(`triggerEventFromDevice: deviceId: ${deviceId}, action: ${eventStr}, message: ${message}`);
-
-        // Register is a basic event where we just register a device
-        if (eventStr === 'register') {
-            const type = message;
-            await Device.registerDevice(deviceId, type);
-            return;
-        }
-
+    private async handleRfidEvent(eventStr: string, deviceId: string, rfidToken: string, callback: ActionExecuter) {
         // Get here and we have an event that is more complex and needs user authentication
 
-        const uid = deviceId;
-        const rfidToken = message;
-
         // Validate the device is active
-        const device = await Device.findByUid(uid);
+        const device = await Device.findByUid(deviceId);
         if (!device) {
             console.error(`triggerEventFromDevice: Unable to find device with id: ${deviceId}`);
             return;
@@ -54,5 +42,32 @@ export default class HacklandEvents {
         const event = await DeviceEvent.get(eventStr, device.location);
 
         this.executeAllActions(event, callback);
+    }
+
+    async triggerEventFromDevice(eventStr: string, deviceId: string, message: string, callback: ActionExecuter) {
+        console.log(`triggerEventFromDevice: deviceId: ${deviceId}, action: ${eventStr}, message: ${message}`);
+
+        switch (eventStr) {
+            case 'register': {
+                // Register is a basic event where we just register a device
+                const type = message;
+                await Device.registerDevice(deviceId, type);
+                return;
+            }
+            case 'card': {
+                // An RFID card reader event has occurred
+                const rfidToken = message;
+                this.handleRfidEvent(eventStr, deviceId, rfidToken, callback);
+                return;
+            }
+            case 'unlock': {
+                // Don't care about this case;
+                return;
+            }
+            default: {
+                console.error(`Unhandled event: eventStr: ${eventStr}, deviceId: ${deviceId}, message: ${message}`);
+                return;
+            }
+        }
     }
 }
