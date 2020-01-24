@@ -1,0 +1,12 @@
+[
+    {
+        "event": "card",
+        "location": "hl_door",
+        "doActions": [
+            {
+                "action": "unlock",
+                "location": "hl_door"
+            }
+        ]
+    }
+]

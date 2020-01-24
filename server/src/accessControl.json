@@ -1,4 +1,0 @@
-{
-    "mongoConnectString": "mongodb://192.168.1.68:9001",
-    "mqttConnectString": "mqtt://192.168.1.68"
-}

@@ -1,52 +1,38 @@
-import mqtt from 'mqtt'
-import {Subject} from 'rxjs'
-import {mqttDoorOpenReq, ServerStatus} from './mqttMessage'
-import {Params} from './configuration'
+import mqtt from 'mqtt';
+import { EventHandler, Event } from './EventHandler';
+import Config from './configuration';
+import { ServerStatus } from './mqttMessage';
 
-class PubSub {
-    private mqttClinet: mqtt.Client | undefined;
-    private mqttServerAddress: String;
-    private DoorOpenRequest = new Subject<mqttDoorOpenReq>(); 
-    private localIpAddress = '';
-    public ConnectParams: Params;
-    constructor(connectParams: Params) {
-        this.ConnectParams = connectParams;
-        this.mqttServerAddress =  connectParams.mqttConnectString;
-
+export default class PubSub {
+    private mqttClient: mqtt.Client | undefined;
+    private eventHandler: EventHandler;
+    constructor() {
+        this.eventHandler = new EventHandler();
     }
 
-    public Connect (doorOpenRequest: Subject<mqttDoorOpenReq>): void {
-        
-        this.DoorOpenRequest = doorOpenRequest;
-        console.log(`Connect to ${this.mqttServerAddress}`);
-        this.mqttClinet = mqtt.connect(this.ConnectParams.mqttConnectString);
-        this.mqttClinet.on('connect', () => {
-            console.log(`Connected to ${this.mqttServerAddress}`);
-            if (this.mqttClinet) {
-                let s: ServerStatus = {IpAddress: this.ConnectParams.localIpAddress, Status: 'Online'};    
-                this.mqttClinet.publish('server', JSON.stringify(s), {retain: true, qos: 0});
-                
-                this.mqttClinet.subscribe('door');
+    public Connect(): void {
+        console.log(`Connect to ${Config.mqttConnectString}`);
+        this.mqttClient = mqtt.connect(Config.mqttConnectString);
+        this.mqttClient.on('connect', () => {
+            console.log(`Connected to ${Config.mqttConnectString}`);
+            if (this.mqttClient) {
+                let s: ServerStatus = { IpAddress: Config.localIpAddress, Status: 'Online' };
+                this.mqttClient.publish('/server', JSON.stringify(s), { retain: true, qos: 0 });
+
+                this.mqttClient.subscribe('/device/#');
             }
         });
 
-        this.mqttClinet.on('message', (topic: any, message: any) => {
-            console.log(`Got mqtt topc:${topic} message:${message}`);
-            if (topic === 'door') {
-                this.DoorOpenRequest.next(JSON.parse(message));
+        this.mqttClient.on('message', (topic: any, message: any) => {
+            console.log(`Got mqtt topic: ${topic} message: ${message.toString()}`);
+            const topicArr = topic.split('/');
+            const name = topicArr[1];
+
+            if (name === 'device' && topicArr.length >= 3) {
+                const deviceId = topicArr[2];
+                const eventStr = topicArr[3];
+                this.eventHandler.triggerEventFromDevice(eventStr, deviceId, message.toString());
             }
-        })
+        });
     }
-
-    public OpenDoor(request: mqttDoorOpenReq): boolean {
-        if (!this.mqttClinet) {
-            return false;
-        }
-        this.mqttClinet.publish('door', JSON.stringify(request));
-        return true;
-    }
-
-    
 }
-
-export default PubSub;
