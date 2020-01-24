@@ -6,7 +6,7 @@ export enum DeviceType {
     CardReader
 }
 
-function deviceTypeFromString(str: String): DeviceType {
+function deviceTypeFromString(str: string): DeviceType {
     switch (str) {
         case 'lock':
             return DeviceType.Lock;
@@ -17,7 +17,7 @@ function deviceTypeFromString(str: String): DeviceType {
     }
 }
 
-function deviceTypeToString(type: DeviceType): String {
+function deviceTypeToString(type: DeviceType): string {
     switch (type) {
         case DeviceType.Lock:
             return 'lock';
@@ -30,9 +30,9 @@ function deviceTypeToString(type: DeviceType): String {
 
 export interface IDevice extends mongoose.Document {
     type: DeviceType; // What kind of device this is
-    uid: String; // The UID (typically the mac address) of the device
-    location: String; // The location of this device
-    enabled: Boolean; // If false, then this device will be ingored
+    uid: string; // The UID (typically the mac address) of the device
+    location: string; // The location of this device
+    enabled: boolean; // If false, then this device will be ingored
 }
 
 export const deviceSchema = new mongoose.Schema({
@@ -43,7 +43,7 @@ export const deviceSchema = new mongoose.Schema({
 });
 
 export class DeviceModel extends mongoose.Model {
-    public async setLocation(location: String): Promise<void> {
+    public async setLocation(location: string): Promise<void> {
         this.location = location;
         await this.save();
     }
@@ -52,15 +52,15 @@ export class DeviceModel extends mongoose.Model {
     // Static functions that work on the whole User Data model - these could be moved to a UserManager class
     //
 
-    public static createUnregisteredDevice(uid: String, type: String) {
+    public static createUnregisteredDevice(uid: string, type: string) {
         return this.create({ uid, type, enabled: false });
     }
 
-    public static async findByUid(uid: String): Promise<DeviceModel> {
+    public static async findByUid(uid: string): Promise<DeviceModel> {
         return await this.findOne({ uid, enabled: true });
     }
 
-    public static async getAllDevicesByTypeAndLocation(type: String, location: String): Promise<Array<DeviceModel>> {
+    public static async getAllDevicesByTypeAndLocation(type: string, location: string): Promise<Array<DeviceModel>> {
         return await this.find({ type, location });
     }
 
@@ -72,7 +72,7 @@ export class DeviceModel extends mongoose.Model {
         });
     }
 
-    public static async registerDevice(uid: String, type: String) {
+    public static async registerDevice(uid: string, type: string) {
         const device = await this.findOne({ uid });
 
         if (!device) {

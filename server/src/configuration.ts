@@ -1,7 +1,7 @@
 /**
  * This file will load the configuration from disk.  It will load the "../../configuration.json" file.  It will statically load this,
  * you do NOT instantiate the configuration.  You just need to use:
- * 
+ *
  * ```TypeScript
  * import Config from './configuration';
  * console.log(Config.slackToken); // Prints the slack token
@@ -13,10 +13,10 @@ import * as path from 'path';
 import * as os from 'os';
 
 class Configuration {
-    readonly localIpAddress: Array<String>;
-    readonly mongoConnectString: String;
-    readonly mqttConnectString: String;
-    readonly mongoApplicationString: String;
+    readonly localIpAddress: Array<string>;
+    readonly mongoConnectString: string;
+    readonly mqttConnectString: string;
+    readonly mongoApplicationString: string;
     readonly slackToken: string;
 
     constructor() {
@@ -32,9 +32,9 @@ class Configuration {
         this.localIpAddress = this.getLocalIp();
     }
 
-    private getLocalIp(): Array<String> {
+    private getLocalIp(): Array<string> {
         const ifaces = os.networkInterfaces();
-        const result: Array<String> = [];
+        const result: Array<string> = [];
 
         Object.keys(ifaces).forEach(ifname => {
             let alias = 0;

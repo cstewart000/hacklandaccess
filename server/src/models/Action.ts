@@ -1,6 +1,6 @@
 import { DeviceType, DeviceModel } from './Device';
 
-function resolvesTo(actionType: String): DeviceType {
+function resolvesTo(actionType: string): DeviceType {
     switch (actionType) {
         case 'unlock':
             return DeviceType.Lock;
@@ -15,12 +15,12 @@ export type ActionExecuter = (action: Action, device: DeviceModel) => Promise<vo
  * An action occurs on a device
  */
 export default class Action {
-    readonly actionType: String; // The type of action to perform when the action occurs. e.g. 'unlock'
-    readonly actionMessage: String; // The parameters of the action
-    readonly location: String; // The location where the action occurs.
+    readonly actionType: string; // The type of action to perform when the action occurs. e.g. 'unlock'
+    readonly actionMessage: string; // The parameters of the action
+    readonly location: string; // The location where the action occurs.
     readonly appliesToDevice: DeviceType; // The type of device this action applis to.
 
-    constructor(actionType: String, location: String) {
+    constructor(actionType: string, location: string) {
         this.actionType = actionType;
         this.actionMessage = actionType === 'unlock' ? '3' : ''; // For a lock, unlock for 3 seconds
         this.location = location;

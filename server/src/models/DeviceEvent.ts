@@ -9,8 +9,8 @@ import mongoose from '../mongo';
 import Action from './Action';
 
 export interface IDeviceEvent extends mongoose.Document {
-    type: String; // The type of event.  E.g. 'card'
-    location: String; // The location of the event e.g. 'hl_door'
+    type: string; // The type of event.  E.g. 'card'
+    location: string; // The location of the event e.g. 'hl_door'
     actions: Action[]; // The list of actions triggered by this event
 }
 
@@ -27,7 +27,7 @@ deviceEventSchema.post('findOne', function(result: any) {
 });
 
 export class DeviceEventModel extends mongoose.Model {
-    equals(that: DeviceEventModel): Boolean {
+    equals(that: DeviceEventModel): boolean {
         return this.type === that.type && this.location === that.location;
     }
 
@@ -39,7 +39,7 @@ export class DeviceEventModel extends mongoose.Model {
     // Static functions that work on the whole User Data model
     //
 
-    public static async get(type: String, location: String): Promise<DeviceEventModel> {
+    public static async get(type: string, location: string): Promise<DeviceEventModel> {
         return await this.findOne({ type, location });
     }
 }

@@ -17,7 +17,7 @@ export default class HacklandEvents {
         });
     }
 
-    async triggerEventFromDevice(eventStr: String, deviceId: String, message: String, callback: ActionExecuter) {
+    async triggerEventFromDevice(eventStr: string, deviceId: string, message: string, callback: ActionExecuter) {
         console.log(`triggerEventFromDevice: deviceId: ${deviceId}, action: ${eventStr}, message: ${message}`);
 
         // Register is a basic event where we just register a device

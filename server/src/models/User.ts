@@ -27,17 +27,17 @@ class UserModel extends mongoose.Model {
         return await this.accessChannels.includes['supporters'];
     }
 
-    public async setAccessChannels(accessChannels: Array<String>): Promise<void> {
+    public async setAccessChannels(accessChannels: Array<string>): Promise<void> {
         this.accessChannels = accessChannels;
         return await this.save();
     }
 
-    public async setSlackUserId(slackUserId: String): Promise<void> {
+    public async setSlackUserId(slackUserId: string): Promise<void> {
         this.slackUserId = slackUserId;
         return await this.save();
     }
 
-    public async addRfidToken(rfidToken: String): Promise<void> {
+    public async addRfidToken(rfidToken: string): Promise<void> {
         if (this.rfidToken.includes(rfidToken)) {
             return;
         }
@@ -65,11 +65,11 @@ class UserModel extends mongoose.Model {
         return await this.find({});
     }
 
-    public static async findUserByEmail(email: String): Promise<UserModel> {
+    public static async findUserByEmail(email: string): Promise<UserModel> {
         return await this.findOne({ email });
     }
 
-    public static async setActiveChannelMembers(channel: String, memberList: Array<String>): Promise<void> {
+    public static async setActiveChannelMembers(channel: string, memberList: Array<string>): Promise<void> {
         const userList = await this.getAll();
         userList.forEach(async user => {
             if (memberList.includes(user.slackUserId)) {

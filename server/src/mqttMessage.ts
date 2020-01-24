@@ -1,14 +1,14 @@
 export class mqttDoorOpenReq {
-    public SoureceReader: String = '';
-    public RequestId: String = '';
+    public SoureceReader: string = '';
+    public RequestId: string = '';
 }
 
 export class mqttDoorOpenCmd {
-    public SoureceReader: String = '';
-    public RequestId: String = '';
+    public SoureceReader: string = '';
+    public RequestId: string = '';
 }
 
 export class ServerStatus {
-    public IpAddress: Array<String> = [];
-    public Status: String = '';
+    public IpAddress: Array<string> = [];
+    public Status: string = '';
 }
