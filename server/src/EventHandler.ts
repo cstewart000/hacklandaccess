@@ -1,4 +1,6 @@
 import Action from './Action';
+import Device, { DeviceType } from './models/Device';
+import User from './models/User';
 
 import eventActionMapJson from './event_action_map.json';
 
@@ -44,10 +46,54 @@ export class EventHandler {
 
     constructor() {
         console.log(eventActionMapJson);
-        this.events = eventActionMapJson.map(ev => new EventActionMap(new Event(ev.event, ev.location), ev.doActions));
+        this.events = eventActionMapJson.map(
+            (ev: any) => new EventActionMap(new Event(ev.event, ev.location), ev.doActions)
+        );
     }
 
     async executeAll(event: Event, execFn: (a: Action) => void): Promise<void> {
         await this.events.forEach(async e => e.execActions(event, execFn));
+    }
+
+    async triggerEventFromDevice(eventStr: String, deviceId: String, message: String): Promise<void> {
+        console.log(`triggerEventFromDevice: deviceId: ${deviceId}, action: ${eventStr}, message: ${message}`);
+
+        if (eventStr === 'register') {
+            const uid = deviceId;
+            const type = message;
+            await Device.registerDevice(uid, type);
+            return;
+        }
+
+        const uid = deviceId;
+        const rfidToken = message;
+
+        // Validate the device is active
+        const device = await Device.findByUid(uid);
+        if (!device) {
+            console.error(`triggerEventFromDevice: Unable to find device with id: ${deviceId}`);
+            return;
+        }
+
+        // Authenticate user
+        const user = await User.findByRfidToken(rfidToken);
+        if (!user || !user.isAuthenticated()) {
+            console.error(`triggerEventFromDevice: User not authorised: rfidToken=${rfidToken}`);
+            return;
+        }
+
+        const event = new Event(eventStr, device.location);
+
+        this.executeAll(event, async (action: Action) => {
+            const devices = await Device.getDevicesByTypeAndLocation(DeviceType.Lock, action.location);
+            devices.forEach((device: any) => {
+                const mqttTopic = `/device/${device.uid}/unlock`;
+                const mqttMessage = '3';
+                console.log(mqttTopic, mqttMessage);
+                // if (this.mqttClient) {
+                //     this.mqttClient.publish(mqttTopic, mqttMessage);
+                // }
+            });
+        });
     }
 }

@@ -1,52 +1,72 @@
+/**
+ * This file will load the configuration from disk.  It will load the "../../configuration.json" file.  It will statically load this,
+ * you do NOT instantiate the configuration.  You just need to use:
+ * 
+ * ```TypeScript
+ * import Config from './configuration';
+ * console.log(Config.slackToken); // Prints the slack token
+ * ```
+ */
+
 import * as fs from 'fs';
 import * as path from 'path';
+import * as os from 'os';
 
-export class Params {
-    localIpAddress: Array<string> = [];
-    mongoConnectString: string = 'mongodb://127.0.0.1:27017';
-    mqttConnectString: string = '';
-    constructor(){
-        this.localIpAddress = new Array<string>();
-    }
-}
+class Configuration {
+    readonly localIpAddress: Array<String>;
+    readonly mongoConnectString: String;
+    readonly mqttConnectString: String;
+    readonly mongoApplicationString: String;
+    readonly slackToken: string;
 
-export class Configuration {
-    public Params: Params = new Params();
-    constructor () {
-        const configFile = path.join(__dirname, '/accessControl.json');
+    constructor() {
+        const configFile = path.join(__dirname, '..', '..', 'configuration.json');
         console.log(configFile);
-        const config = fs.readFileSync(configFile);
-        this.Params = JSON.parse(config.toString());
-        this.Params.localIpAddress = new Array<string>();
-        this.getLocalIp();
+        const config = JSON.parse(fs.readFileSync(configFile).toString());
+
+        this.localIpAddress = config.localIpAddress;
+        this.mongoConnectString = config.mongoConnectString;
+        this.mqttConnectString = config.mqttConnectString;
+        this.mongoApplicationString = config.mongoApplicationString;
+        this.slackToken = config.slackToken;
+        this.localIpAddress = this.getLocalIp();
     }
 
-    private getLocalIp () : void {
+    private getLocalIp(): Array<String> {
+        const ifaces = os.networkInterfaces();
+        const result: Array<String> = [];
 
-        var os = require('os');
-        var ifaces = os.networkInterfaces();
-
-        Object.keys(ifaces).forEach((ifname) => {
-            var alias = 0;
+        Object.keys(ifaces).forEach(ifname => {
+            let alias = 0;
 
             ifaces[ifname].forEach((iface: any) => {
                 if ('IPv4' !== iface.family || iface.internal !== false) {
-                // skip over internal (i.e. 127.0.0.1) and non-ipv4 addresses
+                    // skip over internal (i.e. 127.0.0.1) and non-ipv4 addresses
                     return;
                 }
 
                 if (alias >= 1) {
                     // this single interface has multiple ipv4 addresses
                     console.log(ifname + ':' + alias, iface.address);
-                    this.Params.localIpAddress.push(iface.address);
+                    result.push(iface.address);
                 } else {
                     // this interface has only one ipv4 adress
                     console.log(ifname, iface.address);
-                    this.Params.localIpAddress.push(iface.address);
+                    result.push(iface.address);
                 }
                 ++alias;
             });
-        
-        })
+        });
+
+        return result;
     }
 }
+
+const Config = (function() {
+    console.log('Loading config');
+    return new Configuration();
+})();
+
+Object.freeze(Config);
+
+export default Config;

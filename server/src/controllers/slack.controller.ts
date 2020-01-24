@@ -1,71 +1,63 @@
-import  * as slack from '@slack/web-api';
-import { Router, Request, Response, NextFunction} from 'express';
-import { threadId } from 'worker_threads';
+import * as slack from '@slack/web-api';
+import { Router, Request, Response, NextFunction } from 'express';
 require('dotenv').config();
-import * as env from 'dotenv'
-import { MongoHelper } from '../mongo.helper';
-import { ChannelModel } from '../models/channelModel';
+import Config from '../configuration';
+import User from '../models/User';
 
-//const tok = "xoxp-191779080454-537096133174-913977760439-b316bb36862577abc4be2ca05ffb886d";
-const tok = "xoxp-191779080454-537096133174-913977760439-b316bb36862577abc4be2ca05ffb886d";
+const SUPPORTERS_CHANNEL_ID = 'GH6D0N8KD'; // FIXME: Want this in configuration or in the database.
+
 export class SlackController {
     public Routes = Router();
-    public  webSlack = new slack.WebClient(tok);
-    
-    constructor () {
-        this.initialiseRoutes();
+    public webSlack: slack.WebClient;
+    private slackToken: string;
+
+    constructor() {
+        this.slackToken = Config.slackToken;
+        this.webSlack = new slack.WebClient(this.slackToken);
+        this.initialise();
     }
 
-    private getUserCollection  = () => {
-        return MongoHelper.client.db('AccessControl').collection('users');
-    }
-
-    private getChannelCollection  = () => {
-        return MongoHelper.client.db('AccessControl').collection('channels');
-    }
-
-
-    public async Connect ()  {
-        var res = await this.webSlack.auth.test({token: tok });
+    public async Connect() {
+        var res = await this.webSlack.auth.test({ token: this.slackToken });
         console.log(`slack result ${JSON.stringify(res, null, 4)}`);
     }
 
-    private initialiseRoutes (): void {
-        this.Routes.patch('/api/slack/channels', async (req: Request, resp: Response, next: NextFunction) => {
-            const collection = this.getChannelCollection();
-            const chans:any = await this.webSlack.conversations.list({types: "private_channel"});
-            chans.channels.forEach((ch:any) => {
-                let newChannel: ChannelModel = {slackId: ch.id, name: ch.name};
-                collection.insertOne(newChannel, (error, result) => {
-                    if (error) {
-                        console.dir(error);
-                    } else {
-                        console.dir(`Added ${newChannel.name} : ${newChannel.slackId}`);
-                    }
-                });
-            });
-            resp.status(200);
-            resp.end();
-        });
+    public async getSlackChannels(): Promise<Array<any>> {
+        const chans: any = await this.webSlack.conversations.list({ types: 'private_channel' });
+        console.dir(JSON.stringify(chans.channels, null, 4));
+        return chans.channels;
+    }
 
-        this.Routes.patch('/api/slack/users', async (req: Request, resp: Response, next: NextFunction) => {
-            const collection = this.getUserCollection();
-            const users:any = await this.webSlack.users.list();
-            users.members.forEach((u:any) => {
-                // let newChannel: ChannelModel = {slackId: ch.id, name: ch.name};
-                // collection.insertOne(newChannel, (error, result) => {
-                //     if (error) {
-                //         console.dir(error);
-                //     } else {
-                //         console.dir(`Added ${newChannel.name} : ${newChannel.slackId}`);
-                //     }
-                //});
-                console.dir(JSON.stringify(u, null, 4));
+    public async updateActiveUsers() {
+        const result: any = await this.webSlack.conversations.members({ channel: SUPPORTERS_CHANNEL_ID });
+
+        User.setActiveChannelMembers('supporters', result.members);
+    }
+
+    private async initialise(): Promise<void> {
+        this.updateActiveUsers();
+
+        this.Routes.get('/api/slack/users', async (req: Request, resp: Response, next: NextFunction) => {
+            console.log('here');
+            const allMembers: any = {};
+            const chan: any = await this.webSlack.conversations.members({ channel: SUPPORTERS_CHANNEL_ID });
+            const users: any = await this.webSlack.users.list();
+
+            users.members.forEach((u: any) => {
+                allMembers[u.id] = {
+                    id: u.id,
+                    name: u.name,
+                    real_name: u.real_name
+                };
             });
+
+            const actualMembers = chan.members.map((memberId: any) => allMembers[memberId]);
+            console.log(actualMembers);
+            resp.json(actualMembers);
             resp.status(200);
             resp.end();
         });
     }
 }
 
-export default SlackController
+export default SlackController;
