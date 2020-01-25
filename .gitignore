@@ -2,3 +2,7 @@
 **/node_modules
 
 server/dist/
+build
+sdkconfig.old
+sdkconfig
+secrets.h
