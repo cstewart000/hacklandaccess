@@ -15,6 +15,26 @@ npm install  # This will install the necessary components.
 npm start    # This will run the server.
 ```
 
+Install the systemd service
+
+```sh
+# The service file
+sudo cp hacklandaccess.service /etc/systemd/system/hacklandaccess.service
+
+# Enable the systemd service
+sudo systemctl enable hacklandaccess.service
+
+# Start the service
+sudo systemctl start hacklandaccess.service
+
+# Check the service status
+systemctl status hacklandaccess.service
+
+# Check the service logs since the machine booted
+journalctl -u hacklandaccess.service -b
+
+```
+
 ## Development
 
 The code contains the following models:

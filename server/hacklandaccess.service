@@ -1,0 +1,23 @@
+# This file needs to be copied to:
+# /etc/systemd/system/hacklandaccess.service
+
+[Unit]
+Description=Hackland Access Server
+
+[Service]
+ExecStart=/usr/bin/npm start
+# Required on some systems
+WorkingDirectory=/home/hackland/hacklandaccess/server
+Restart=always
+# Restart service after 10 seconds if node service crashes
+RestartSec=10
+# Output to syslog
+StandardOutput=syslog
+StandardError=syslog
+SyslogIdentifier=hacklandaccess
+#User=<alternate user>
+#Group=<alternate group>
+Environment=NODE_ENV=production
+
+[Install]
+WantedBy=multi-user.target
