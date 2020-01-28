@@ -28,13 +28,13 @@ char topic_unlock[MAX_TOPIC_LEN];
 void device_unlock()
 {
     ESP_LOGI(TAG, "UNLOCK");
-    gpio_set_level(GPIO_04, GPIO_OFF);
+    gpio_set_level(CONFIG_UNLOCK_PIN_GPIO, GPIO_OFF);
 }
 
 void device_lock()
 {
     ESP_LOGI(TAG, "LOCK");
-    gpio_set_level(GPIO_04, GPIO_ON);
+    gpio_set_level(CONFIG_UNLOCK_PIN_GPIO, GPIO_ON);
 }
 
 void v_unlock_task(void *fp_sleep_time_secs)
@@ -52,7 +52,7 @@ void v_unlock_task(void *fp_sleep_time_secs)
     }
 
     device_unlock();
-    ESP_LOGW(TAG, "Sleeping for %d seconds", sleep_time_secs);
+    ESP_LOGI(TAG, "Sleeping for %d seconds", sleep_time_secs);
     vTaskDelay((sleep_time_secs * 1000) / portTICK_PERIOD_MS);
     device_lock();
 
@@ -65,7 +65,7 @@ void kill_unlock_task()
 {
     if (unlock_task_handle == NULL)
     {
-        ESP_LOGI(TAG, "Task is already dead");
+        ESP_LOGD(TAG, "Task is already dead");
         return;
     }
 
@@ -133,11 +133,11 @@ void lock_init()
     device_lock(); // By defaut we are locked
 
     //configure GPIO with the given settings
-    gpio_config_t io_conf;
-    io_conf.intr_type = GPIO_INTR_DISABLE;
-    io_conf.mode = GPIO_MODE_OUTPUT;
-    io_conf.pin_bit_mask = GPIO_OUTPUT_PIN_SEL;
-    io_conf.pull_down_en = 0;
-    io_conf.pull_up_en = 0;
-    gpio_config(&io_conf);
+    // gpio_config_t io_conf;
+    // io_conf.intr_type = GPIO_INTR_DISABLE;
+    // io_conf.mode = GPIO_MODE_OUTPUT;
+    // io_conf.pin_bit_mask = GPIO_OUTPUT_PIN_SEL;
+    // io_conf.pull_down_en = 0;
+    // io_conf.pull_up_en = 0;
+    // gpio_config(&io_conf);
 }

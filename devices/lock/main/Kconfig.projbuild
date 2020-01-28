@@ -18,8 +18,19 @@ config BROKER_URL
     help
         URL of the broker to connect to
 
-config BROKER_URL_FROM_STDIN
-    bool
-    default y if BROKER_URL = "FROM_STDIN"
+config UNLOCK_PIN_GPIO
+    int "Unlock pin GPIO"
+    default 4
+    help
+        The Pin to use for the unlock relay.
+        Default = GPIO_04 = D2 
+
+config UNLOCK_BUTTON_GPIO
+    int "Unlock button"
+    default 5
+    help
+        The pin for the unlock button.  This is the button that is inside and will always open the door.   
+        Default = GPIO_05 = D1 
+
 
 endmenu

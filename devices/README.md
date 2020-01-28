@@ -39,3 +39,10 @@ _Locking_
 
 By default the device will be locked. When a numeric value is sent to the `/device/[MAC Address]/unlock` topic, the device
 will unlock for the given amount of time (in seconds).
+
+## Pins
+
+| Pin | GPIO | Comment                                                        |
+| --- | ---- | -------------------------------------------------------------- |
+| D1  | 05   | The door release button - wire to ground via a physical button |
+| D2  | 04   | The door release relay                                         |

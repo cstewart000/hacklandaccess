@@ -8,6 +8,7 @@
 #include "esp_event_loop.h"
 
 #include "driver/gpio.h"
+#include "driver/uart.h"
 
 #include "freertos/FreeRTOS.h"
 #include "freertos/task.h"
@@ -24,6 +25,7 @@
 
 #include "common.h"
 #include "lock.h"
+#include "button_unlock.h"
 
 static const char *TAG = "MAIN";
 
@@ -155,6 +157,7 @@ void app_main()
 
     // Start the lock code
     lock_init();
+    btn_unlock_init();
 
     // Let's go
     nvs_flash_init();
