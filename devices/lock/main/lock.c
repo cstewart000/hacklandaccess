@@ -25,23 +25,31 @@ static TaskHandle_t unlock_task_handle = NULL;
 char topic_register[MAX_TOPIC_LEN];
 char topic_unlock[MAX_TOPIC_LEN];
 
-
-void device_unlock() {
+void device_unlock()
+{
     ESP_LOGI(TAG, "UNLOCK");
     gpio_set_level(GPIO_04, GPIO_OFF);
 }
 
-void device_lock() {
+void device_lock()
+{
     ESP_LOGI(TAG, "LOCK");
     gpio_set_level(GPIO_04, GPIO_ON);
 }
 
-void v_unlock_task( void * fp_sleep_time_secs ) {
+void v_unlock_task(void *fp_sleep_time_secs)
+{
 
     int sleep_time_secs = (int)fp_sleep_time_secs;
 
-    if (sleep_time_secs <= 0) goto CLEAN_EXIT;
-    if (sleep_time_secs >= TIME_24_HOURS_IN_SEC) goto CLEAN_EXIT;
+    if (sleep_time_secs <= 0)
+    {
+        goto CLEAN_EXIT;
+    }
+    if (sleep_time_secs >= TIME_24_HOURS_IN_SEC)
+    {
+        goto CLEAN_EXIT;
+    }
 
     device_unlock();
     ESP_LOGW(TAG, "Sleeping for %d seconds", sleep_time_secs);
@@ -53,8 +61,10 @@ CLEAN_EXIT:
     kill_unlock_task();
 }
 
-void kill_unlock_task() {
-    if (unlock_task_handle == NULL) {
+void kill_unlock_task()
+{
+    if (unlock_task_handle == NULL)
+    {
         ESP_LOGI(TAG, "Task is already dead");
         return;
     }
@@ -64,24 +74,28 @@ void kill_unlock_task() {
     vTaskDelete(tmp_task_handle);
 }
 
-void device_unlock_for_time(int sleep_time_secs) {
+void device_unlock_for_time(int sleep_time_secs)
+{
     TaskHandle_t xHandle = NULL;
 
     // Kill the task if it's already running.
     kill_unlock_task();
 
     // Create a task that will stop after a certain time
-    xTaskCreate( v_unlock_task, "LOCKER_CODE", 2048, (void *)sleep_time_secs, tskIDLE_PRIORITY, &xHandle );
+    xTaskCreate(v_unlock_task, "LOCKER_CODE", 2048, (void *)sleep_time_secs, tskIDLE_PRIORITY, &xHandle);
 
     unlock_task_handle = xHandle;
 }
 
-void lock_handle_incoming_data(esp_mqtt_event_handle_t event) {
-    if (strcmp(topic_unlock, event->topic) != 0) {
+void lock_handle_incoming_data(esp_mqtt_event_handle_t event)
+{
+    if (strcmp(topic_unlock, event->topic) != 0)
+    {
         ESP_LOGI(TAG, "Got unlock command.  Unlocking for (%.*s) seconds", event->data_len, event->data);
 
-        #define MAX_TOPIC_DATA_LEN 6
-        if (event->data_len > MAX_TOPIC_DATA_LEN) {
+#define MAX_TOPIC_DATA_LEN 6
+        if (event->data_len > MAX_TOPIC_DATA_LEN)
+        {
             ESP_LOGE(TAG, "Invalid data length: %d.  Rebooting", event->data_len);
             esp_restart();
         }
@@ -90,27 +104,31 @@ void lock_handle_incoming_data(esp_mqtt_event_handle_t event) {
 
         snprintf(sleep_time_secs_str, event->data_len + 1, "%s", event->data);
         int sleep_time_secs = atoi(sleep_time_secs_str);
-        device_unlock_for_time(sleep_time_secs);   
+        device_unlock_for_time(sleep_time_secs);
     }
 }
 
-char *lock_get_topic_register() {
+char *lock_get_topic_register()
+{
     return topic_register;
 }
 
-char *lock_get_topic_unlock() {
+char *lock_get_topic_unlock()
+{
     return topic_unlock;
 }
 
-const char *lock_get_device_type() {
+const char *lock_get_device_type()
+{
     return DEVICE_TYPE;
 }
 
-void lock_init() {
+void lock_init()
+{
     // Get the MAC address, from that we can create the topic sub/pubs
     set_my_uuid();
     sprintf(topic_register, BASE_TOPIC "/%s/register", get_uuid());
-    sprintf(topic_unlock,   BASE_TOPIC "/%s/unlock", get_uuid());
+    sprintf(topic_unlock, BASE_TOPIC "/%s/unlock", get_uuid());
 
     device_lock(); // By defaut we are locked
 
@@ -123,4 +141,3 @@ void lock_init() {
     io_conf.pull_up_en = 0;
     gpio_config(&io_conf);
 }
-
