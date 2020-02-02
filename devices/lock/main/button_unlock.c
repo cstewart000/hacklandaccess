@@ -18,7 +18,7 @@
 
 #include "lock.h"
 
-static const char *TAG = "button_unlock";
+static const char *TAG = "BUTTON_UNLOCK";
 
 #define GPIO_INPUT_IO_1 CONFIG_UNLOCK_BUTTON_GPIO
 #define GPIO_INPUT_PIN_SEL ((1ULL << GPIO_INPUT_IO_1))
@@ -31,7 +31,7 @@ static void gpio_isr_handler(void *arg)
     xQueueSendFromISR(gpio_evt_queue, &gpio_num, NULL);
 }
 
-static void gpio_task_example(void *arg)
+static void gpio_task(void *arg)
 {
     uint32_t io_num;
     long int last_click_time = xTaskGetTickCount() * portTICK_RATE_MS;
@@ -53,6 +53,7 @@ static void gpio_task_example(void *arg)
         else
         {
             // Button is currently being pressed.
+            ESP_LOGI(TAG, "Button pressed");
             device_unlock_for_time(3);
         }
 
@@ -62,7 +63,6 @@ static void gpio_task_example(void *arg)
 
 void btn_unlock_init()
 {
-    ESP_LOGE(TAG, "HERE\n");
 
     gpio_config_t io_conf;
     io_conf.intr_type = GPIO_INTR_NEGEDGE;
@@ -75,7 +75,7 @@ void btn_unlock_init()
     //create a queue to handle gpio event from isr
     gpio_evt_queue = xQueueCreate(10, sizeof(uint32_t));
     //start gpio task
-    xTaskCreate(gpio_task_example, "gpio_task_example", 2048, NULL, 10, NULL);
+    xTaskCreate(gpio_task, "gpio_task", 2048, NULL, 10, NULL);
 
     //install gpio isr service
     gpio_install_isr_service(0);

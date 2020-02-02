@@ -4,8 +4,8 @@
 
 #include "mqtt_client.h"
 
-#define GPIO_ON 1  // Turn it on
-#define GPIO_OFF 0 // Turn it off
+#define GPIO_ON 0  // Turn it on
+#define GPIO_OFF 1 // Turn it off
 #define GPIO_OUTPUT_PIN_SEL (1ULL << CONFIG_UNLOCK_PIN_GPIO)
 
 // MQTT topics are:

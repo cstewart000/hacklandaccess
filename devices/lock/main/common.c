@@ -24,7 +24,7 @@ void set_my_uuid()
     uint8_t mac[MAC_LEN];
     esp_efuse_mac_get_default(mac);
     to_hex_str(MY_UUID, mac, MAC_LEN);
-    ESP_LOGW(TAG, "MY_UUID: %s", MY_UUID);
+    ESP_LOGI(TAG, "MY_UUID: %s", MY_UUID);
 }
 
 char *get_uuid()
